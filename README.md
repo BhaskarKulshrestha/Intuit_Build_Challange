@@ -160,7 +160,82 @@ git clone https://github.com/BhaskarKulshrestha/Intuit_Build_Challange.git
 cd Intuit_Build_Challange
 ```
 
-### Run Producer-Consumer Project
+### 🎯 Automated Setup (Recommended)
+
+Both projects include automated installation and verification scripts for easy setup:
+
+#### Producer-Consumer Project
+
+```bash
+cd Producer_consumer
+
+# Install and setup everything automatically
+./install.sh
+
+# Verify installation and run all checks
+./verify.sh
+```
+
+The **`install.sh`** script will:
+- ✅ Check prerequisites (Java, Maven)
+- ✅ Download all dependencies
+- ✅ Compile the project
+- ✅ Run all tests
+- ✅ Package JAR file
+- ✅ Generate JavaDoc documentation
+
+The **`verify.sh`** script will:
+- ✅ Validate environment setup (Java, Maven versions)
+- ✅ Check project structure and files
+- ✅ Verify compilation success
+- ✅ Run all unit tests
+- ✅ Test demo executions
+- ✅ Validate JAR packaging
+- ✅ Generate comprehensive verification report
+
+#### CSV Data Analysis Project
+
+```bash
+cd Data_Analysis_on_CSV
+
+# Install and setup everything automatically
+./install.sh
+
+# Verify installation and run all checks
+./verify.sh
+```
+
+The **`install.sh`** script will:
+- ✅ Check prerequisites (Java, Maven)
+- ✅ Verify sample CSV data file
+- ✅ Download all dependencies (OpenCSV, JUnit, etc.)
+- ✅ Compile the project
+- ✅ Run all tests
+- ✅ Package executable JAR with dependencies
+- ✅ Generate JavaDoc documentation
+- ✅ Create quick-run scripts
+
+The **`verify.sh`** script will:
+- ✅ Validate environment setup
+- ✅ Check project structure and files
+- ✅ Verify CSV data format
+- ✅ Test compilation and dependencies
+- ✅ Run all unit and integration tests
+- ✅ Verify application execution
+- ✅ Test JAR file functionality
+- ✅ Validate documentation
+- ✅ Check code quality metrics
+- ✅ Generate comprehensive verification report (with pass/fail percentage)
+
+---
+
+---
+
+### 🔧 Manual Setup
+
+If you prefer manual installation:
+
+#### Run Producer-Consumer Project
 
 ```bash
 # Navigate to project
@@ -182,7 +257,7 @@ mvn exec:java -Dexec.mainClass="com.intuit.producerconsumer.blockingqueue.Blocki
 mvn test
 ```
 
-### Run CSV Data Analysis Project
+#### Run CSV Data Analysis Project
 
 ```bash
 # Navigate to project
@@ -222,6 +297,9 @@ Intuit_Build_Challange/
 │   │       └── com/intuit/producerconsumer/
 │   │           └── ProducerConsumerTest.java
 │   ├── pom.xml
+│   ├── install.sh                      # Automated installation script
+│   ├── verify.sh                       # Verification and testing script
+│   ├── run-demo.sh                     # Demo execution script
 │   ├── README.md
 │   ├── QUICKSTART.md
 │   ├── EXECUTION_FLOW.md
@@ -249,6 +327,9 @@ Intuit_Build_Challange/
     │               └── SalesAnalyticsServiceTest.java
     ├── sales_data_sample.csv
     ├── pom.xml
+    ├── install.sh                      # Automated installation script
+    ├── verify.sh                       # Verification and testing script
+    ├── run-analysis.sh                 # Quick analysis execution script
     ├── README.md
     ├── QUICKSTART.md
     ├── ARCHITECTURE.md
@@ -266,6 +347,16 @@ Intuit_Build_Challange/
 - **Maven**: Build automation and dependency management
 - **JUnit 5**: Unit and integration testing
 - **Mockito**: Mocking framework for tests
+
+### Automation & DevOps
+
+- **Shell Scripts**: Automated installation and verification
+  - `install.sh`: Complete project setup with dependency management
+  - `verify.sh`: Comprehensive testing and validation (30+ checks)
+  - `run-demo.sh` / `run-analysis.sh`: Quick execution scripts
+- **Color-coded Output**: Enhanced user experience with visual feedback
+- **Error Handling**: Robust error detection and reporting
+- **Progress Tracking**: Step-by-step installation and verification status
 
 ### Java Features Demonstrated
 
