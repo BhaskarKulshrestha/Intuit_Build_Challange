@@ -1,14 +1,5 @@
 # Intuit Build Coding Challenge
 
-[![Java](https://img.shields.io/badge/Java-11+-orange.svg)](https://www.oracle.com/java/)
-[![Maven](https://img.shields.io/badge/Maven-3.6+-blue.svg)](https://maven.apache.org/)
-
-
-> **Comprehensive Solutions for Intuit Build Coding Challenge**  
-> Demonstrating advanced Java programming, concurrent systems, data analysis, and software engineering best practices.
-
----
-
 ## 📋 Table of Contents
 
 - [Overview](#overview)
