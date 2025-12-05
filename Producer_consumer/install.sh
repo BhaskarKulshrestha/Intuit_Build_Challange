@@ -101,11 +101,11 @@ fi
 
 print_header "Downloading Dependencies"
 
-print_info "Downloading Maven dependencies..."
-mvn dependency:resolve
+print_info "Resolving and downloading all Maven dependencies..."
+mvn dependency:resolve dependency:resolve-plugins
 
 if [ $? -eq 0 ]; then
-    print_success "All dependencies downloaded successfully"
+    print_success "All runtime dependencies downloaded successfully"
 else
     print_error "Failed to download dependencies"
     exit 1
@@ -119,6 +119,71 @@ if [ $? -eq 0 ]; then
 else
     print_error "Failed to download test dependencies"
     exit 1
+fi
+
+print_info "Copying dependencies to target/dependency..."
+mvn dependency:copy-dependencies -DoutputDirectory=target/dependency
+
+if [ $? -eq 0 ]; then
+    print_success "Dependencies copied for verification"
+else
+    print_warning "Could not copy dependencies (non-critical)"
+fi
+
+################################################################################
+# Step 3.5: Verify Dependencies
+################################################################################
+
+print_header "Verifying Project Dependencies"
+
+# Check JUnit 5 dependencies
+print_info "Verifying JUnit 5 dependencies..."
+JUNIT_FOUND=false
+if mvn dependency:tree | grep -q "org.junit.jupiter:junit-jupiter"; then
+    JUNIT_API_VERSION=$(mvn dependency:tree | grep "junit-jupiter-api" | head -1 | sed 's/.*:junit-jupiter-api:jar:\([0-9.]*\).*/\1/')
+    print_success "JUnit Jupiter API found (version $JUNIT_API_VERSION)"
+    JUNIT_FOUND=true
+fi
+
+if mvn dependency:tree | grep -q "org.junit.jupiter:junit-jupiter-engine"; then
+    JUNIT_ENGINE_VERSION=$(mvn dependency:tree | grep "junit-jupiter-engine" | head -1 | sed 's/.*:junit-jupiter-engine:jar:\([0-9.]*\).*/\1/')
+    print_success "JUnit Jupiter Engine found (version $JUNIT_ENGINE_VERSION)"
+    JUNIT_FOUND=true
+fi
+
+if [ "$JUNIT_FOUND" = false ]; then
+    print_error "JUnit 5 dependencies not found!"
+    exit 1
+fi
+
+# Verify Maven plugins
+print_info "Verifying Maven plugins..."
+
+REQUIRED_PLUGINS=(
+    "maven-compiler-plugin"
+    "maven-surefire-plugin"
+    "maven-jar-plugin"
+)
+
+for plugin in "${REQUIRED_PLUGINS[@]}"; do
+    if mvn help:effective-pom | grep -q "$plugin"; then
+        print_success "Plugin verified: $plugin"
+    else
+        print_warning "Plugin not configured: $plugin"
+    fi
+done
+
+# Display dependency tree summary
+print_info "Generating dependency tree..."
+TOTAL_DEPS=$(mvn dependency:tree | grep -c "^\[INFO\].*:.*:.*:.*")
+print_success "Total dependencies resolved: $TOTAL_DEPS"
+
+# Check for dependency conflicts
+print_info "Checking for dependency conflicts..."
+if mvn dependency:analyze > /dev/null 2>&1; then
+    print_success "No critical dependency conflicts detected"
+else
+    print_warning "Dependency analysis completed with warnings"
 fi
 
 ################################################################################
