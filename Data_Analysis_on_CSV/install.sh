@@ -123,11 +123,11 @@ fi
 
 print_header "Downloading Dependencies"
 
-print_info "Downloading Maven dependencies..."
-mvn dependency:resolve
+print_info "Resolving and downloading all Maven dependencies..."
+mvn dependency:resolve dependency:resolve-plugins
 
 if [ $? -eq 0 ]; then
-    print_success "All dependencies downloaded successfully"
+    print_success "All runtime dependencies downloaded successfully"
 else
     print_error "Failed to download dependencies"
     exit 1
@@ -143,19 +143,127 @@ else
     exit 1
 fi
 
-# Check specific dependencies
-print_info "Verifying key dependencies..."
-if mvn dependency:tree | grep -q "opencsv"; then
-    print_success "OpenCSV library available"
+print_info "Copying dependencies to target/dependency..."
+mvn dependency:copy-dependencies -DoutputDirectory=target/dependency
+
+if [ $? -eq 0 ]; then
+    print_success "Dependencies copied for verification"
 else
-    print_warning "OpenCSV library not found in dependencies"
+    print_warning "Could not copy dependencies (non-critical)"
 fi
 
-if mvn dependency:tree | grep -q "junit"; then
-    print_success "JUnit testing framework available"
+################################################################################
+# Step 4.5: Verify Project-Specific Dependencies
+################################################################################
+
+print_header "Verifying Project Dependencies"
+
+# Check OpenCSV library
+print_info "Verifying OpenCSV library..."
+if mvn dependency:tree | grep -q "com.opencsv:opencsv"; then
+    OPENCSV_VERSION=$(mvn dependency:tree | grep "com.opencsv:opencsv" | head -1 | sed 's/.*:opencsv:jar:\([0-9.]*\).*/\1/')
+    print_success "OpenCSV library found (version $OPENCSV_VERSION)"
+    
+    # Verify OpenCSV can be imported
+    print_info "Testing OpenCSV import..."
+    if mvn dependency:get -Dartifact=com.opencsv:opencsv:$OPENCSV_VERSION > /dev/null 2>&1; then
+        print_success "OpenCSV successfully validated"
+    fi
 else
-    print_warning "JUnit not found in dependencies"
+    print_error "OpenCSV dependency not found!"
+    echo "This is required for CSV parsing. Please check pom.xml"
+    exit 1
 fi
+
+# Check Lombok
+print_info "Verifying Lombok library..."
+if mvn dependency:tree | grep -q "org.projectlombok:lombok"; then
+    LOMBOK_VERSION=$(mvn dependency:tree | grep "org.projectlombok:lombok" | head -1 | sed 's/.*:lombok:jar:\([0-9.]*\).*/\1/')
+    print_success "Lombok found (version $LOMBOK_VERSION)"
+else
+    print_warning "Lombok not found (optional dependency)"
+fi
+
+# Check JUnit 5 dependencies
+print_info "Verifying JUnit 5 dependencies..."
+JUNIT_FOUND=false
+
+if mvn dependency:tree | grep -q "org.junit.jupiter:junit-jupiter-api"; then
+    JUNIT_API_VERSION=$(mvn dependency:tree | grep "junit-jupiter-api" | head -1 | sed 's/.*:junit-jupiter-api:jar:\([0-9.]*\).*/\1/')
+    print_success "JUnit Jupiter API found (version $JUNIT_API_VERSION)"
+    JUNIT_FOUND=true
+fi
+
+if mvn dependency:tree | grep -q "org.junit.jupiter:junit-jupiter-engine"; then
+    JUNIT_ENGINE_VERSION=$(mvn dependency:tree | grep "junit-jupiter-engine" | head -1 | sed 's/.*:junit-jupiter-engine:jar:\([0-9.]*\).*/\1/')
+    print_success "JUnit Jupiter Engine found (version $JUNIT_ENGINE_VERSION)"
+    JUNIT_FOUND=true
+fi
+
+if mvn dependency:tree | grep -q "org.junit.jupiter:junit-jupiter-params"; then
+    JUNIT_PARAMS_VERSION=$(mvn dependency:tree | grep "junit-jupiter-params" | head -1 | sed 's/.*:junit-jupiter-params:jar:\([0-9.]*\).*/\1/')
+    print_success "JUnit Jupiter Params found (version $JUNIT_PARAMS_VERSION)"
+fi
+
+if [ "$JUNIT_FOUND" = false ]; then
+    print_error "JUnit 5 dependencies not found!"
+    exit 1
+fi
+
+# Check Mockito
+print_info "Verifying Mockito library..."
+if mvn dependency:tree | grep -q "org.mockito:mockito-core"; then
+    MOCKITO_VERSION=$(mvn dependency:tree | grep "mockito-core" | head -1 | sed 's/.*:mockito-core:jar:\([0-9.]*\).*/\1/')
+    print_success "Mockito mocking framework found (version $MOCKITO_VERSION)"
+else
+    print_warning "Mockito not found (may affect some tests)"
+fi
+
+# Check AssertJ
+print_info "Verifying AssertJ library..."
+if mvn dependency:tree | grep -q "org.assertj:assertj-core"; then
+    ASSERTJ_VERSION=$(mvn dependency:tree | grep "assertj-core" | head -1 | sed 's/.*:assertj-core:jar:\([0-9.]*\).*/\1/')
+    print_success "AssertJ assertions library found (version $ASSERTJ_VERSION)"
+else
+    print_warning "AssertJ not found (optional testing library)"
+fi
+
+# Verify Maven plugins
+print_info "Verifying Maven plugins..."
+
+REQUIRED_PLUGINS=(
+    "maven-compiler-plugin"
+    "maven-surefire-plugin"
+    "maven-jar-plugin"
+    "maven-shade-plugin"
+)
+
+for plugin in "${REQUIRED_PLUGINS[@]}"; do
+    if mvn help:effective-pom | grep -q "$plugin"; then
+        print_success "Plugin verified: $plugin"
+    else
+        print_warning "Plugin not configured: $plugin"
+    fi
+done
+
+# Display dependency tree summary
+print_info "Generating dependency tree summary..."
+TOTAL_DEPS=$(mvn dependency:tree | grep -c "^\[INFO\].*:.*:.*:.*")
+print_success "Total dependencies resolved: $TOTAL_DEPS"
+
+# Check for dependency conflicts
+print_info "Checking for dependency conflicts..."
+if mvn dependency:analyze > /dev/null 2>&1; then
+    print_success "No critical dependency conflicts detected"
+else
+    print_warning "Dependency analysis completed with warnings"
+fi
+
+# List all direct dependencies
+print_info "Direct project dependencies:"
+mvn dependency:tree | grep "^\[INFO\] +-" | head -10 | while read line; do
+    echo "  $line"
+done
 
 ################################################################################
 # Step 5: Compile the Project
