@@ -10,7 +10,7 @@ Welcome to the Producer-Consumer Pattern Implementation project! This index will
 | **Understand the project** | [README.md](README.md) |
 | **Learn synchronization concepts** | [SYNCHRONIZATION.md](SYNCHRONIZATION.md) |
 | **See execution flow** | [EXECUTION_FLOW.md](EXECUTION_FLOW.md) |
-| **View sample output** | [SAMPLE_OUTPUT.md](SAMPLE_OUTPUT.md) ⭐ NEW |
+| **View sample output** | [SAMPLE_OUTPUT.md](SAMPLE_OUTPUT.md) |
 | **Review project completion** | [PROJECT_SUMMARY.md](PROJECT_SUMMARY.md) |
 | **Navigate all files** | [INDEX.md](INDEX.md) (this file) |
 
