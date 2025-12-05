@@ -102,7 +102,40 @@ Producer_consumer/
 - **Java JDK 11 or higher**
 - **Maven 3.6 or higher**
 
-### Installation
+### Quick Installation (Recommended)
+
+We provide automated scripts for easy setup:
+
+#### 1. **Automated Installation**
+```bash
+cd Producer_consumer
+./install.sh
+```
+
+The install script will:
+- ✅ Check all prerequisites (Java, Maven)
+- ✅ Download all dependencies
+- ✅ Compile the project
+- ✅ Run all tests
+- ✅ Package the JAR file
+- ✅ Generate documentation
+
+#### 2. **Verify Installation**
+```bash
+./verify.sh
+```
+
+The verification script will:
+- ✅ Validate environment setup
+- ✅ Check project structure
+- ✅ Verify compilation
+- ✅ Run all tests
+- ✅ Test demo executions
+- ✅ Generate comprehensive report
+
+### Manual Installation
+
+If you prefer manual setup:
 
 1. **Clone or navigate to the project directory:**
    ```bash
